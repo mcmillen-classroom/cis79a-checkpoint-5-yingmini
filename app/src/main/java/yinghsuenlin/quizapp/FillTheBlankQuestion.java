@@ -1,5 +1,9 @@
 package yinghsuenlin.quizapp;
 
+import android.content.Context;
+
+import java.util.Arrays;
+
 public class FillTheBlankQuestion extends Question
 {
     private String[] mFillAnswers;
@@ -28,5 +32,11 @@ public class FillTheBlankQuestion extends Question
     public boolean isFillTheBlankQuestion()
     {
         return true;
+    }
+
+    @Override
+    public String getAnswerText(Context ctx)
+    {
+        return Arrays.toString(mFillAnswers);
     }
 }

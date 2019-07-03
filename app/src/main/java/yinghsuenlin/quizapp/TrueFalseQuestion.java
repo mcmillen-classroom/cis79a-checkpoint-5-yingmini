@@ -1,5 +1,7 @@
 package yinghsuenlin.quizapp;
 
+import android.content.Context;
+
 public class TrueFalseQuestion extends Question {
     private boolean mAnswer;
     public TrueFalseQuestion(int textResId, int hintTextResId, boolean ans) {
@@ -17,5 +19,11 @@ public class TrueFalseQuestion extends Question {
     public boolean isTrueFalseQuestion()
     {
         return true;
+    }
+
+    @Override
+    public String getAnswerText(Context ctx)
+    {
+        return "" + mAnswer;
     }
 }

@@ -2,6 +2,7 @@ package yinghsuenlin.quizapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -14,6 +15,8 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener
 {
+    private static final int REQUEST_CODE_CHEAT = 0;
+
     private TextView mTextView;
     private EditText mEditText;
 
@@ -36,6 +39,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int mIndex;
     private int mScore;
 
+    private Button mCheatButton;
+    private boolean mCheated = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         maButton = (Button) findViewById(R.id.a_button);
         mbButton = (Button) findViewById(R.id.b_button);
         mcButton = (Button) findViewById(R.id.c_button);
+        mCheatButton = (Button) findViewById(R.id.cheat_button);
 
         mTrueFalseContainer = (LinearLayout) findViewById(R.id.true_false_container);
         mFillTheBlankContainer = (LinearLayout) findViewById(R.id.fill_the_blank_container);
@@ -66,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         maButton.setOnClickListener(this);
         mbButton.setOnClickListener(this);
         mcButton.setOnClickListener(this);
+        mCheatButton.setOnClickListener(this);
 
         mTextView = (TextView) findViewById(R.id.text_view);
 
@@ -85,6 +93,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //Setup the first question.
         setupQuestion();
+    }
+
+    @Override
+    public void onActivityResult(int requestionCode, int resultCode, Intent resultData)
+    {
+        if (resultCode != RESULT_OK)
+        {
+            return;
+        }
+
+        if (requestionCode == REQUEST_CODE_CHEAT && resultData != null)
+        {
+            mCheated = CheatActivity.didCheat(resultData);
+        }
     }
 
     @Override
@@ -121,7 +143,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 setupQuestion();
             }
         }
-
         else if(view.getId() == R.id.next_button) {
             //Change to the next question...
 
@@ -139,12 +160,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             //Change text in view
         }
-
         else if(view.getId() == R.id.hint_button)
         {
             Toast myToast = Toast.makeText(this, mQuestions[mIndex].getHintTextResId(), Toast.LENGTH_LONG);
             myToast.setGravity(Gravity.TOP, 0, 180);
             myToast.show();
+        }
+        else if(view.getId() == R.id.cheat_button)
+        {
+            // todo: launch CheatActivity
+            Intent cheatIntent = CheatActivity.newIntent(this, mQuestions[mIndex]);
+            startActivityForResult(cheatIntent, REQUEST_CODE_CHEAT);
         }
     }
 
@@ -183,7 +209,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public boolean checkAnswer(boolean userInput)
     {
-        if(mQuestions[mIndex].checkAnswer(userInput))
+        if(mCheated)
+        {
+            Toast.makeText(this, R.string.cheat_shame, Toast.LENGTH_LONG).show();
+            return false;
+        }
+        else if(mQuestions[mIndex].checkAnswer(userInput))
         {
             Toast myToast = Toast.makeText(this, "You are correct!", Toast.LENGTH_SHORT);
             myToast.setGravity(Gravity.TOP, 0, 180);
@@ -201,7 +232,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public boolean checkAnswer(String userInput)
     {
-        if(mQuestions[mIndex].checkAnswer(userInput))
+        if(mCheated)
+        {
+            Toast.makeText(this, R.string.cheat_shame, Toast.LENGTH_LONG).show();
+            return false;
+        }
+        else if(mQuestions[mIndex].checkAnswer(userInput))
         {
             Toast myToast = Toast.makeText(this, "You are correct!", Toast.LENGTH_SHORT);
             myToast.setGravity(Gravity.TOP, 0, 180);
